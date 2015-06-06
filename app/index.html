@@ -73,15 +73,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <span>Home</span>
               </a>
 
-              <a data-route="users" href="/users">
+              <a data-route="plugins" href="/plugins">
                 <iron-icon icon="info"></iron-icon>
-                <span>Users</span>
+                <span>plugins</span>
               </a>
 
-              <a data-route="contact" href="/contact">
-                <iron-icon icon="mail"></iron-icon>
-                <span>Contact</span>
+              <a data-route="servers" href="/servers">
+                <iron-icon icon="info"></iron-icon>
+                <span>servers</span>
               </a>
+
+              <a data-route="vulnerabilities" href="/vulnerabilities">
+                <iron-icon icon="info"></iron-icon>
+                <span>vulnerabilities</span>
+              </a>
+
+              <a data-route="websites" href="/websites">
+                <iron-icon icon="info"></iron-icon>
+                <span>websites</span>
+              </a>
+
           </paper-menu>
       </div>
       <paper-header-panel main mode="waterfall-tall">
@@ -109,34 +120,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <paper-material elevation="1">
                 <my-greeting></my-greeting>
 
-                <p class="paper-font-subhead">You now have:</p>
-                <my-list></my-list>
+                Home Page
 
-                <p class="paper-font-body2">Looking for more Web App layouts? Check out our <a href="https://github.com/PolymerElements/app-layout-templates">layouts</a> collection. You can also <a href="http://polymerelements.github.io/app-layout-templates/">preview</a> them live.</p>
               </paper-material>
             </section>
 
-            <section data-route="users">
+            <section data-route="plugins">
               <paper-material elevation="1">
-                <h2 class="paper-font-display2">Users</h2>
-                <p>This is the users section</p>
-                <a href="/users/Rob">Rob</a></p>
+                <h2 class="paper-font-display2">plugins</h2>
+                <p>This is the plugins section</p>
               </paper-material>
             </section>
 
-            <section data-route="user-info">
+            <section data-route="servers">
               <paper-material elevation="1">
-                <h2 class="paper-font-display2">
-                User:<span>{{params.name}}</span>
-                </h2>
-                <div>This is <span>{{params.name}}</span>'s section</div>
+                <h2 class="paper-font-display2">servers</h2>
+                <p>This is the servers section</p>
               </paper-material>
             </section>
 
-            <section data-route="contact">
+            <section data-route="vulnerabilities">
               <paper-material elevation="1">
-                <h2 class="paper-font-display2">Contact</h2>
-                <p>This is the contact section</p>
+                <h2 class="paper-font-display2">vulnerabilities</h2>
+                <p>This is the vulnerabilities section</p>
+              </paper-material>
+            </section>
+
+            <section data-route="websites">
+              <paper-material elevation="1">
+                <h2 class="paper-font-display2">websites</h2>
+                <p>This is the websites section</p>
               </paper-material>
             </section>
 
