@@ -16,7 +16,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <iron-ajax
       auto
-      url="http://localhost:3000/plugins"
+      url="{{url}}"
       handle-as="json"
       on-response="handleResponse"
       debounce-duration="300">
@@ -112,25 +112,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       data = request.detail.response;
 
       var columns = [];
+      var rows = [];
       for(var d in data){
+        var row = []
+
         for(var k in data[d]){
           if(columns.indexOf(k) < 0){
             columns.push(k);
           }
-        }
-      }
 
-      var rows = [[]];
-      for(var w in data){
-        var row = []
-        for(var k in data[w]){
-          row.push(data[w][k]);
+          if(data[d][k] == null){
+            row.push("");
+          }else{
+            row.push(data[d][k]);
+          }
         }
         rows.push(row)
       }
 
       this.columns = columns;
       this.rows = rows
+
+      console.log(rows);
 
     }
   });
