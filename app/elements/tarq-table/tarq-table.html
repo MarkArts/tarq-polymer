@@ -1,0 +1,99 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="tarq-table">
+
+  <template>
+
+    <table>
+      <thead>
+        <tr>
+          <template is="dom-repeat" items="{{collumns}}" as="collumn">
+            <td>{{collumn}}</td>
+          </template>
+        </tr>
+      </thead>
+
+      <tbody>
+        <template is="dom-repeat" items="{{rows}}" as="row">
+          <tr>
+            <template is="dom-repeat" items="{{row}}" as="r">
+              <td>{{r}}</td>
+            </template>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+
+   <style>
+      :host {
+        display: block;
+      }
+
+      table {
+        padding: 8px 0;
+        border-collapse: collapse;
+        width: 100%; }
+        table  thead tr th, table  tfooter tr td {
+          line-height: 56px; }
+        table tbody tr td {
+          line-height: 48px; }
+        table thead th {
+          font-size: 12px;
+          color: #6E6E6E;
+          font-weight: 500; }
+        table tr {
+          vertical-align: middle;
+          text-align: left;
+          border-bottom: 1px solid #ddd; }
+        table td {
+          font-size: 13px;
+          color: #1F1F1F;
+          font-weight: 400; }
+        table th, table  td {
+          padding-left: 24px;
+          padding-right: 24px; }
+          table  th:first-child, table td:first-child {
+            padding-right: 0;
+            width: 16px; }
+          table th.numeric, table  td.numeric {
+            text-align: right; }
+        table tbody tr:hover {
+          background-color: #EEEEEE; }
+
+    </style>
+
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'tarq-table',
+
+    properties: {
+      rows: {
+        type: Array,
+        value: [
+          ["1","2","3"],
+          ["1","2","3"]
+        ],
+        notify: false
+      },
+      collumns: {
+        type: Array,
+        value: ["c1","c2","c3"],
+        notify: false
+      }
+    }
+  });
+})();
+</script>
