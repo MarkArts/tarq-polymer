@@ -22,61 +22,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       debounce-duration="300">
     </iron-ajax>
 
-    <table>
-      <thead>
-        <tr>
-          <template is="dom-repeat" items="{{columns}}" as="column">
-            <td>{{column}}</td>
-          </template>
-        </tr>
-      </thead>
-
-      <tbody>
-        <template is="dom-repeat" items="{{rows}}" as="row">
-          <tr>
-            <template is="dom-repeat" items="{{row}}" as="r">
-              <td>{{r}}</td>
-            </template>
-          </tr>
-        </template>
-      </tbody>
-    </table>
+    <v-grid selection-mode="disabled" id="vgrid" />
 
    <style>
-      :host {
-        display: block;
-      }
-
-      table {
-        padding: 8px 0;
-        border-collapse: collapse;
-        width: 100%; }
-        table  thead tr th, table  tfooter tr td {
-          line-height: 56px; }
-        table tbody tr td {
-          line-height: 48px; }
-        table thead th {
-          font-size: 12px;
-          color: #6E6E6E;
-          font-weight: 500; }
-        table tr {
-          vertical-align: middle;
-          text-align: left;
-          border-bottom: 1px solid #ddd; }
-        table td {
-          font-size: 13px;
-          color: #1F1F1F;
-          font-weight: 400; }
-        table th, table  td {
-          padding-left: 24px;
-          padding-right: 24px; }
-          table  th:first-child, table td:first-child {
-            padding-right: 0;
-            width: 16px; }
-          table th.numeric, table  td.numeric {
-            text-align: right; }
-        table tbody tr:hover {
-          background-color: #EEEEEE; }
 
     </style>
 
@@ -92,49 +40,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: String,
         value: "http://localhost:3000/servers",
         notify: false
-      },
-      rows: {
-        type: Array,
-        value: [
-          ["1","2","3"],
-          ["1","2","3"]
-        ],
-        notify: false
-      },
-      collumns: {
-        type: Array,
-        value: ["c1","c2","c3"],
-        notify: false
       }
     },
 
     handleResponse: function(request){
-      data = request.detail.response;
+
+      var grid = this.$.vgrid;
+      var data = request.detail.response;
+      grid.data.source = data;
 
       var columns = [];
       var rows = [];
       for(var d in data){
-        var row = []
-
         for(var k in data[d]){
           if(columns.indexOf(k) < 0){
             columns.push(k);
-          }
-
-          if(data[d][k] == null){
-            row.push("");
-          }else{
-            row.push(data[d][k]);
+            grid.addColumn({
+              "headerContent": k,
+              "name": k,
+              "sortable": true
+            })
           }
         }
-        rows.push(row)
       }
-
-      this.columns = columns;
-      this.rows = rows
-
-      console.log(rows);
-
     }
   });
 })();
