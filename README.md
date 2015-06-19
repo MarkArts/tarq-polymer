@@ -5,6 +5,7 @@
 ### known issues
 * Browsersync doesn't corretly sync menu navigation. This can be fixe by not using hasbang routing (#!/route)
 * the server browser sync starts can only use hasbang. This can be fixed by intergrating a python server
+* there are no configurable parameters at this moment
 
 ## Setup
 

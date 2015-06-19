@@ -8,33 +8,25 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 
-<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel='import' href='../../bower_components/polymer/polymer.html'>
 
-<dom-module id="tarq-table">
+<dom-module id='tarq-table'>
 
   <template>
-
-    <iron-ajax
-      auto
-      url="{{url}}"
-      handle-as="json"
-      on-response="handleResponse"
-      debounce-duration="300">
-    </iron-ajax>
 
     <table>
       <thead>
         <tr>
-          <template is="dom-repeat" items="{{columns}}" as="column">
+          <template is='dom-repeat' items='{{columns}}' as='column'>
             <td>{{column}}</td>
           </template>
         </tr>
       </thead>
 
       <tbody>
-        <template is="dom-repeat" items="{{rows}}" as="row">
+        <template is='dom-repeat' items='{{rows}}' as='row'>
           <tr>
-            <template is="dom-repeat" items="{{row}}" as="r">
+            <template is='dom-repeat' items='{{row}}' as='r'>
               <td>{{r}}</td>
             </template>
           </tr>
@@ -82,59 +74,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   </template>
 </dom-module>
+
 <script>
 (function() {
   Polymer({
     is: 'tarq-table',
 
     properties: {
-      url: {
-        type: String,
-        value: "http://localhost:3000/servers",
-        notify: false
-      },
       rows: {
         type: Array,
         value: [
-          ["1","2","3"],
-          ["1","2","3"]
+          ['1','2','3'],
+          ['1','2','3']
         ],
         notify: false
       },
       collumns: {
         type: Array,
-        value: ["c1","c2","c3"],
+        value: ['c1','c2','c3'],
         notify: false
       }
-    },
-
-    handleResponse: function(request){
-      data = request.detail.response;
-
-      var columns = [];
-      var rows = [];
-      for(var d in data){
-        var row = []
-
-        for(var k in data[d]){
-          if(columns.indexOf(k) < 0){
-            columns.push(k);
-          }
-
-          if(data[d][k] == null){
-            row.push("");
-          }else{
-            row.push(data[d][k]);
-          }
-        }
-        rows.push(row)
-      }
-
-      this.columns = columns;
-      this.rows = rows
-
-      console.log(rows);
-
     }
   });
 })();
