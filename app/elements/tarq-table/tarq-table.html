@@ -24,7 +24,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </thead>
 
       <tbody>
-        <template is='dom-repeat' items='{{rows}}' as='row'>
+        <template is='dom-repeat' items='{{rows}}' as='row' filter="filter", sort="sort">
           <tr>
             <template is='dom-repeat' items='{{row}}' as='r'>
               <td>{{r}}</td>
@@ -93,8 +93,89 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: Array,
         value: ['c1','c2','c3'],
         notify: false
+      },
+      _filters: {
+        type: Object,
+        value: {},
+        notify: false
+      },
+      _sorts: {
+        type: Object,
+        value: {},
+        notify: false
       }
+
+    },
+
+    filter: function(item)
+    {
+      if(Object.keys(this._filters).length > 0){
+        return ifAll(item, this._filters);
+      }else{
+        return true;
+      }
+    },
+    sort: function(a, b)
+    {
+      if(Object.keys(this._sorts).length > 0){
+
+        var sorts = Object.keys(this._sorts).map(function (key) {return this._sorts[key]}.bind(this)); // must be a better way to do this
+
+        sorts.sort(function(a,b){
+          return b.wheight - a.wheight;
+        });
+
+        var r = 0;
+        for(i in sorts){
+          r = sorts[i].func(a, b);
+          if(r != 0){
+            break;
+          }
+        }
+
+        return r;
+
+      }else{
+        return 0;
+      }
+    },
+    addFilter: function(name, f)
+    {
+      this._filters[name] = f;
+    },
+    removeFilter: function(name, f)
+    {
+      delete this._filters[name];
+    },
+    addSort: function(name, f)
+    {
+      this._sorts[name] = f;
+    },
+    removeSort: function(name)
+    {
+      delete this._sorts[name];
     }
+
   });
 })();
+
+// checks if any of the functions returns true
+function ifAny(x, fs){
+  for( f in fs){
+    if(fs[f](x)){
+      return true;
+    }
+  }
+  return false;
+}
+// check if all the functions return true
+function ifAll(x, fs){
+  for( f in fs){
+    if(!fs[f](x)){
+      return false
+    }
+  }
+  return true;
+}
+
 </script>
