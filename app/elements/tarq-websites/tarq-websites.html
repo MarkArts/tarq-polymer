@@ -25,10 +25,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       debounce-duration='300'>
     </iron-ajax>
 
-    <paper-material elevation="1">
-      <h2 class="paper-font-display2">Websites</h2>
-      <tarq-table id="table"></tarq-table>
-    </paper-material>
+    <h2 class="paper-font-display2">Websites</h2>
+    <tarq-table id="table"></tarq-table>
+
   </template>
 </dom-module>
 <script>
@@ -46,15 +45,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     handleResponse: function(request){
       var data = request.detail.response;
-
-      console.log(data);
-
       var columns = [
         "name",
         "type",
         "version",
-        "plugins",
-        "vulnerabilities",
         "plugins",
         "has_errors"
       ];
@@ -72,7 +66,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.$.table.columns = columns;
       this.$.table.rows = rows;
-
 
     }
 

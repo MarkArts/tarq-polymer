@@ -21,10 +21,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       debounce-duration='300'>
     </iron-ajax>
 
-   <paper-material elevation="1">
-      <h2 class="paper-font-display2">Plugins</h2>
-      <tarq-table id="table"></tarq-table>
-    </paper-material>
+    <h2 class="paper-font-display2">Plugins <span>{{rows.length}}</span></h2>
+    <tarq-table id="table"></tarq-table>
 
   </template>
 
@@ -45,19 +43,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: String,
         value: 'bar',
         notify: true
-      }
+      },
+      rows: Array
     },
 
     handleResponse: function(request){
       var data = request.detail.response;
 
-      var columns = [
+      this.columns = [
         "name",
         "vulnerabilities",
         "websites"
       ];
 
-      var rows = [];
+      var rows = []
       for(var d in data){
         rows.push([
           data[d].name,
@@ -65,9 +64,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           data[d].websites.length
         ]);
       }
+      this.set('rows', rows);
 
-      this.$.table.columns = columns;
-      this.$.table.rows = rows;
+      this.$.table.columns = this.columns;
+      this.$.table.rows = this.rows;
+
     }
 
   });
