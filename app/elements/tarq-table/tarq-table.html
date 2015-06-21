@@ -18,7 +18,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <thead>
         <tr>
           <template is='dom-repeat' items='{{columns}}' as='column'>
-            <td on-click="orderColumn">{{column}}</td>
+            <td on-click="_theadClick">{{column}}</td>
           </template>
         </tr>
       </thead>
@@ -108,11 +108,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // events
-    orderColumn: function(e)
+    _theadClick: function(e)
     {
-      var column = e.model.column;
+      this.orderOnColumn(e.model.column);
+    },
 
-      // because we don't have the ui to remove filters from columns yet we remove the sorts of all other columns
+    // functions
+    orderOnColumn: function(column){
       for(var k in this.columns){
         if(this.columns[k] != column){
           if(this._sorts[this.columns[k]]){
@@ -139,8 +141,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
       }
     },
-
-    // Functions
     _filter: function(item)
     {
       if(Object.keys(this._filters).length > 0){
@@ -230,24 +230,4 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   });
 })();
-
-// checks if any of the functions returns true
-function ifAny(x, fs){
-  for( f in fs){
-    if(fs[f](x)){
-      return true;
-    }
-  }
-  return false;
-}
-// check if all the functions return true
-function ifAll(x, fs){
-  for( f in fs){
-    if(!fs[f](x)){
-      return false
-    }
-  }
-  return true;
-}
-
 </script>
