@@ -104,13 +104,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         value: {},
         notify: false
       }
+    },
 
+    // /table#sorts=column1,column2&filters=func1,func2,func3,func4&customSorts=sortFunc1,sortFunc2
+    _readHash: function(e){
+      var hash = window.location.hash;
+
+      if(hash.indexOf('#!') >= 0){
+        hash = hash.replace("#!", "");
+        if(hash.indexOf("#" >= 0)){
+          hash = hash.replace(hash.substr(0,hash.indexOf("#")), "");
+        }
+        hash = "";
+      }
+
+      console.log(hash);
     },
 
     // events
     _theadClick: function(e)
     {
       this.orderOnColumn(e.model.column);
+      this._readHash();
     },
 
     // functions
