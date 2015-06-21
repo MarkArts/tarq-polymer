@@ -99,9 +99,14 @@
         _applyHash: function(){
           var hashVals = this._getValuesFromHash(['sorts', 'filters']);
 
+          console.log(hashVals);
 
           hashVals.sorts.forEach(function(sort){
-            this.orderOnColumn(sort);
+            if(sort.indexOf('^') >= 0){
+              this.orderOnColumn(sort.replace('^', ''), true);
+            }else{
+              this.orderOnColumn(sort);
+            }
           }.bind(this));
 
           // todo: add checks to see if functions exists
@@ -114,14 +119,24 @@
         // events
         _theadClick: function(e)
         {
-          //this.orderOnColumn(e.model.column);
           // when we can remove sorts from ui this should add the column to the hash instead of replace sorts
-          this._setValuesInHash({sorts: [e.model.column]});
+
+          var column = e.model.column;
+
+          if(this._sorts[column]){
+            var rev = ( this._sorts[column].reverse ? '' : '^' );
+            this._setValuesInHash({sorts: [e.model.column+rev]});
+          }else{
+            this._setValuesInHash({sorts: [e.model.column]});
+          }
+
           this._applyHash();
         },
 
         // functions
         orderOnColumn: function(column, reverse){
+          if (typeof reverse === 'undefined') { reverse = false; }
+
 
           // we delete the sorts from the other columns because we can't remove sorts in the ui
           for(var k in this._columns){
@@ -132,23 +147,18 @@
             }
           }
 
-          if(this._sorts[column]){
-            this._sorts[column].reverse = (reverse ? reverse : !this._sorts[column].reverse);
-            this.render();
-          }else{
-            this.addSort(column, {
-              weight: 30,
-              reverse: reverse,
-              func: function(a, b){
-                x = (parseInt(a[column]) ? parseInt(a[column]) : a[column]);
-                y = (parseInt(b[column]) ? parseInt(b[column]) : b[column]);
-                if(x < y)
-                  return -1;
-                else
-                  return 1;
-              }
-            });
-          }
+          this.addSort(column, {
+            weight: 30,
+            reverse: reverse,
+            func: function(a, b){
+              x = (parseInt(a[column]) ? parseInt(a[column]) : a[column]);
+              y = (parseInt(b[column]) ? parseInt(b[column]) : b[column]);
+              if(x < y)
+                return -1;
+              else
+                return 1;
+            }
+          });
         },
         _filter: function(item)
         {
