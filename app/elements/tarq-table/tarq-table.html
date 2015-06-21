@@ -7,16 +7,16 @@
     <table>
       <thead>
         <tr>
-          <template is='dom-repeat' items='{{columns}}' as='column'>
+          <template is='dom-repeat' items='{{_columns}}' as='column'>
             <td on-click="_theadClick">{{column}}</td>
           </template>
         </tr>
       </thead>
 
       <tbody>
-        <template id="rows" is='dom-repeat' items='{{rows}}' as='row' filter="_filter", sort="_sort" >
+        <template id="rows" is='dom-repeat' items='{{_rows}}' as='row' filter="_filter", sort="_sort" >
           <tr>
-            <template is='dom-repeat' items='{{columns}}' as='column'>
+            <template is='dom-repeat' items='{{_columns}}' as='column'>
               <td>{{_getColumnFrom(column, row)}}</td>
             </template>
           </tr>
@@ -65,174 +65,214 @@
   </template>
 
   <script>
-  (function() {
-    Polymer({
-      is: 'tarq-table',
+    (function() {
+      Polymer({
+        is: 'tarq-table',
 
-      properties: {
-        rows: {
-          type: Array,
-          value: [
-            ['1','2','3'],
-            ['1','2','3']
-          ],
-          notify: false
-        },
-        collumns: {
-          type: Array,
-          value: ['c1','c2','c3'],
-          notify: false
-        },
-        _filters: {
-          type: Object,
-          value: {},
-          notify: false
-        },
-        _sorts: {
-          type: Object,
-          value: {},
-          notify: false
-        }
-      },
-
-      // /table#sorts=column1,column2&filters=func1,func2,func3,func4&customSorts=sortFunc1,sortFunc2
-      _readHash: function(e){
-        var hash = window.location.hash;
-
-        if(hash.indexOf('#!') >= 0){
-          hash = hash.replace("#!", "");
-          if(hash.indexOf("#" >= 0)){
-            hash = hash.replace(hash.substr(0,hash.indexOf("#")), "");
+        properties: {
+          _rows: {
+            type: Array,
+            value: [
+              ['1','2','3'],
+              ['1','2','3']
+            ],
+            notify: false
+          },
+          _columns: {
+            type: Array,
+            value: ['c1','c2','c3'],
+            notify: false
+          },
+          _filters: {
+            type: Object,
+            value: {},
+            notify: false
+          },
+          _sorts: {
+            type: Object,
+            value: {},
+            notify: false
           }
-          hash = "";
-        }
+        },
 
-        console.log(hash);
-      },
+        // /table#sorts=column1,column2&filters=func1,func2,func3,func4&customSorts=sortFunc1,sortFunc2
+        _applyHash: function(){
+          var hashVals = this._getValuesFromHash(['sorts', 'filters']);
 
-      // events
-      _theadClick: function(e)
-      {
-        this.orderOnColumn(e.model.column);
-        this._readHash();
-      },
+          hashVals.sorts.forEach(function(sort){
+            this.orderOnColumn(sort, true);
+          }.bind(this));
 
-      // functions
-      orderOnColumn: function(column){
-        for(var k in this.columns){
-          if(this.columns[k] != column){
-            if(this._sorts[this.columns[k]]){
-              delete this._sorts[this.columns[k]];
-            }
-          }
-        }
+          // todo: add checks to see if functions exists
+          hashVals.filters.forEach(function(f){
+            this.addFilter(f, window[f]);
+          }.bind(this));
 
-        if(this._sorts[column]){
-          this._sorts[column].reverse = !this._sorts[column].reverse;
-          this.render();
-        }else{
-          this.addSort(column, {
-            weight: 30,
-            reverse: false,
-            func: function(a, b){
-              x = (parseInt(a[column]) ? parseInt(a[column]) : a[column]);
-              y = (parseInt(b[column]) ? parseInt(b[column]) : b[column]);
-              if(x < y)
-                return -1;
-              else
-                return 1;
-            }
-          });
-        }
-      },
-      _filter: function(item)
-      {
-        if(Object.keys(this._filters).length > 0){
-          return this._ifAll(item, this._filters);
-        }else{
-          return true;
-        }
-      },
-      _sort: function(a, b)
-      {
-        if(Object.keys(this._sorts).length > 0){
+        },
 
-          var sorts = Object.keys(this._sorts).map(function (key) {return this._sorts[key]}.bind(this)); // must be a better way to do this
+        // events
+        _theadClick: function(e)
+        {
+          this.orderOnColumn(e.model.column);
+        },
 
-          sorts.sort(function(a,b){
-            return b.wheight - a.wheight;
-          });
-
-          var r = 0;
-          for(i in sorts){
-            r = sorts[i].func(a, b);
-            if(sorts[i].reverse)
-              r = r * -1;
-
-            if(r != 0){
-              break;
+        // functions
+        orderOnColumn: function(column, reverse){
+          // we delete the sorts from the other columns because we can't remove sorts in the ui
+          for(var k in this._columns){
+            if(this._columns[k] != column){
+              if(this._sorts[this._columns[k]]){
+                delete this._sorts[this._columns[k]];
+              }
             }
           }
 
-          return r;
-
-        }else{
-          return 0;
-        }
-      },
-      // f = function(i)
-      addFilter: function(name, f)
-      {
-        this._filters[name] = f;
-        this.render();
-      },
-      removeFilter: function(name, f)
-      {
-        delete this._filters[name];
-        this.render();
-      },
-      // s = { weight: 1, reverse: false, func: function(a)}
-      addSort: function(name, s)
-      {
-        this._sorts[name] = s;
-        this.render();
-      },
-      removeSort: function(name)
-      {
-        delete this._sorts[name];
-        this.render();
-      },
-
-      // helpers
-      render: function()
-      {
-        this.$.rows.render();
-      },
-      // We need this helper function because polymer data binding does not support selecting a prop from a string
-      _getColumnFrom: function(column, row)
-      {
-        return row[column];
-      },
-      _ifAny: function(x, fs)
-      {
-        for( f in fs){
-          if(fs[f](x)){
+          if(this._sorts[column]){
+            this._sorts[column].reverse = (reverse ? reverse : !this._sorts[column].reverse);
+            this.render();
+          }else{
+            this.addSort(column, {
+              weight: 30,
+              reverse: reverse,
+              func: function(a, b){
+                x = (parseInt(a[column]) ? parseInt(a[column]) : a[column]);
+                y = (parseInt(b[column]) ? parseInt(b[column]) : b[column]);
+                if(x < y)
+                  return -1;
+                else
+                  return 1;
+              }
+            });
+          }
+        },
+        _filter: function(item)
+        {
+          if(Object.keys(this._filters).length > 0){
+            return this._ifAll(item, this._filters);
+          }else{
             return true;
           }
-        }
-        return false;
-      },
-      _ifAll: function(x, fs)
-      {
-        for( f in fs){
-          if(!fs[f](x)){
-            return false
-          }
-        }
-        return true;
-      }
+        },
+        _sort: function(a, b)
+        {
+          if(Object.keys(this._sorts).length > 0){
 
-    });
-  })();
+            var sorts = Object.keys(this._sorts).map(function (key) {return this._sorts[key]}.bind(this)); // must be a better way to do this
+
+            sorts.sort(function(a,b){
+              return b.wheight - a.wheight;
+            });
+
+            var r = 0;
+            for(i in sorts){
+              r = sorts[i].func(a, b);
+              if(sorts[i].reverse)
+                r = r * -1;
+
+              if(r != 0){
+                break;
+              }
+            }
+
+            return r;
+
+          }else{
+            return 0;
+          }
+        },
+        // f = function(i)
+        addFilter: function(name, f)
+        {
+          this._filters[name] = f;
+          this.render();
+        },
+        removeFilter: function(name, f)
+        {
+          delete this._filters[name];
+          this.render();
+        },
+        // s = { weight: 1, reverse: false, func: function(a)}
+        addSort: function(name, s)
+        {
+          this._sorts[name] = s;
+          this.render();
+        },
+        removeSort: function(name)
+        {
+          delete this._sorts[name];
+          this.render();
+        },
+        render: function()
+        {
+          this.$.rows.render();
+        },
+        getRows: function()
+        {
+          return this._rows;
+        },
+        setRows: function(rows)
+        {
+          this.set('_rows', rows);
+          this._applyHash();
+        },
+        getColumns: function(){
+          return this._columns;
+        },
+        setColumns: function(columns){
+          this.set('_columns', columns);
+          this._applyHash();
+        },
+
+
+        // helpers
+        // We need this helper function because polymer data binding does not support selecting a prop from a string
+        _getColumnFrom: function(column, row)
+        {
+          return row[column];
+        },
+        _ifAny: function(x, fs)
+        {
+          for( f in fs){
+            if(fs[f](x)){
+              return true;
+            }
+          }
+          return false;
+        },
+        _ifAll: function(x, fs)
+        {
+          for( f in fs){
+            if(!fs[f](x)){
+              return false
+            }
+          }
+          return true;
+        },
+        _getValuesFromHash: function(vals){
+          var hash = window.location.hash;
+          var response = {};
+
+          vals.forEach(function(val){
+            response[val] = [];
+
+            if(hash.indexOf(val+"=") >= 0){
+              var s = hash.split(val+"=")[1];
+
+              if(s.indexOf('&') >= 0){
+                s = s.substr(0, s.indexOf('&')-1);
+              }
+              response[val] = s.split(',');
+            }
+          })
+
+          return response;
+        },
+        _setValuesInHash: function(vals)
+        {
+
+        }
+
+      });
+    })();
   </script>
 </dom-module>
