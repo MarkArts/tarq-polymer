@@ -50,18 +50,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         "type",
         "version",
         "plugins",
+        "vulnerabilities",
         "has_errors"
       ];
 
+      console.log(data);
+
       var rows = [];
       for(var d in data){
-        rows.push([
-          data[d].name,
-          data[d].cms_type,
-          data[d].plugins.length,
-          data[d].vulnerabilities.length,
-          data[d].has_errors
-        ]);
+        rows.push({
+          name: data[d].name,
+          type: data[d].cms_type,
+          version: data[d].version,
+          plugins: data[d].plugins.length,
+          vulnerabilities: data[d].vulnerabilities.length,
+          has_errors: data[d].has_errors
+        });
       }
 
       this.$.table.columns = columns;

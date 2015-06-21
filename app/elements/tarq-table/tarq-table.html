@@ -26,9 +26,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <tbody>
         <template is='dom-repeat' items='{{rows}}' as='row' filter="filter", sort="sort">
           <tr>
-            <template is='dom-repeat' items='{{row}}' as='r'>
-              <td>{{r}}</td>
+
+            <template is='dom-repeat' items='{{columns}}' as='column'>
+              <td>{{_getColumnFrom(column, row)}}</td>
             </template>
+
           </tr>
         </template>
       </tbody>
@@ -154,6 +156,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     removeSort: function(name)
     {
       delete this._sorts[name];
+    },
+
+    // We need this helper function because polymer data binding does not support selecting a prop from a string
+    _getColumnFrom: function(column, row)
+    {
+      return row[column];
     }
 
   });

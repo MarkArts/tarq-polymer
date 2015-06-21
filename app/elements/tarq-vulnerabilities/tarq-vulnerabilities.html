@@ -60,13 +60,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var rows = [];
       for(var d in data){
-        rows.push([
-          data[d].title,
-          data[d].target_type,
-          data[d].plugins[0].name,
-          data[d].websites.length,
-          data[d].vuln_type
-        ]);
+        rows.push({
+          title: data[d].title,
+          type: data[d].target_type,
+          plugin: data[d].plugins[0].name,
+          websites: data[d].websites.length,
+          vuln_type: data[d].vuln_type
+        });
       }
 
       this.$.table.columns = columns;

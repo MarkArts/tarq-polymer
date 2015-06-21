@@ -58,11 +58,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var rows = [];
       for(var d in data){
-        rows.push([
-          data[d].name,
-          data[d].vulnerabilities.length,
-          data[d].websites.length
-        ]);
+        rows.push({
+          name: data[d].name,
+          vulnerabilities: data[d].vulnerabilities.length,
+          websites: data[d].websites.length
+        });
       }
 
       this.$.table.columns = columns;
