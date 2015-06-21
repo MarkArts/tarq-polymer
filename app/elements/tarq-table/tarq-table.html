@@ -18,19 +18,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <thead>
         <tr>
           <template is='dom-repeat' items='{{columns}}' as='column'>
-            <td>{{column}}</td>
+            <td on-click="orderColumn">{{column}}</td>
           </template>
         </tr>
       </thead>
 
       <tbody>
-        <template is='dom-repeat' items='{{rows}}' as='row' filter="filter", sort="sort">
+        <template id="rows" is='dom-repeat' items='{{rows}}' as='row' filter="_filter", sort="_sort" >
           <tr>
-
             <template is='dom-repeat' items='{{columns}}' as='column'>
               <td>{{_getColumnFrom(column, row)}}</td>
             </template>
-
           </tr>
         </template>
       </tbody>
@@ -109,15 +107,43 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     },
 
-    filter: function(item)
+    // events
+    orderColumn: function(e)
+    {
+      var column = e.model.column;
+
+      var up = true;
+      if(this._sorts[column])
+        up = !this._sorts[column].up;
+
+      this._sorts = [];
+
+      this.addSort(column, {
+        weight: 30,
+        up: up, // We use this property to toggle between up and down sorting for columns
+        func: function(a, b){
+          x = (parseInt(a[column]) ? parseInt(a[column]) : a[column]);
+          y = (parseInt(b[column]) ? parseInt(b[column]) : b[column]);
+
+          r = (up ? x < y : y < x);
+          if(r)
+            return -1;
+          else
+            return 1;
+        }
+      });
+    },
+
+    // Functions
+    _filter: function(item)
     {
       if(Object.keys(this._filters).length > 0){
-        return ifAll(item, this._filters);
+        return this._ifAll(item, this._filters);
       }else{
         return true;
       }
     },
-    sort: function(a, b)
+    _sort: function(a, b)
     {
       if(Object.keys(this._sorts).length > 0){
 
@@ -141,27 +167,56 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return 0;
       }
     },
+    // f = function(i)
     addFilter: function(name, f)
     {
       this._filters[name] = f;
+      this.render();
     },
     removeFilter: function(name, f)
     {
       delete this._filters[name];
+      this.render();
     },
-    addSort: function(name, f)
+    // s = { weight: 1, func: function(a)}
+    addSort: function(name, s)
     {
-      this._sorts[name] = f;
+      this._sorts[name] = s;
+      this.render();
     },
     removeSort: function(name)
     {
       delete this._sorts[name];
+      this.render();
     },
 
+    // helpers
+    render: function()
+    {
+      this.$.rows.render();
+    },
     // We need this helper function because polymer data binding does not support selecting a prop from a string
     _getColumnFrom: function(column, row)
     {
       return row[column];
+    },
+    _ifAny: function(x, fs)
+    {
+      for( f in fs){
+        if(fs[f](x)){
+          return true;
+        }
+      }
+      return false;
+    },
+    _ifAll: function(x, fs)
+    {
+      for( f in fs){
+        if(!fs[f](x)){
+          return false
+        }
+      }
+      return true;
     }
 
   });
