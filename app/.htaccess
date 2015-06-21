@@ -1,58 +1,7 @@
+RewriteEngine on
+  RewriteCond %{REQUEST_FILENAME} -s [OR]
+  RewriteCond %{REQUEST_FILENAME} -l [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^.*$ - [NC,L]
 
-# ----------------------------------------------------------------------
-# Start rewrite engine
-# ----------------------------------------------------------------------
-
-# Turning on the rewrite engine is necessary for the following rules and
-# features. FollowSymLinks must be enabled for this to work.
-
-# Some cloud hosting services require RewriteBase to be set: goo.gl/HOcPN
-# If using the h5bp in a subdirectory, use `RewriteBase /foo` instead where
-# 'foo' is your directory.
-
-# If your web host doesn't allow the FollowSymlinks option, you may need to
-# comment it out and use `Options +SymLinksOfOwnerMatch`, but be aware of the
-# performance impact: http://goo.gl/Mluzd
-
-<IfModule mod_rewrite.c>
-  Options +FollowSymlinks
-# Options +SymLinksIfOwnerMatch
-  Options +FollowSymlinks
-  RewriteEngine On
-# RewriteBase /
-</IfModule>
-
-
-# ----------------------------------------------------------------------
-# Prevent SSL cert warnings
-# ----------------------------------------------------------------------
-
-# Rewrite secure requests properly to prevent SSL cert warnings, e.g. prevent
-# https://www.example.com when your cert only allows https://secure.example.com
-
-# <IfModule mod_rewrite.c>
-#   RewriteCond %{SERVER_PORT} !^443
-#   RewriteRule ^ https://example-domain-please-change-me.com%{REQUEST_URI} [R=301,L]
-# </IfModule>
-
-
-
-# ----------------------------------------------------------------------
-# Custom 404 page
-# ----------------------------------------------------------------------
-
-# You can add custom pages to handle 500 or 403 pretty easily, if you like.
-# If you are hosting your site in subdirectory, adjust this accordingly
-#    e.g. ErrorDocument 404 /subdir/404.html
-ErrorDocument 404 /404.html
-
-
-# ----------------------------------------------------------------------
-# UTF-8 encoding
-# ----------------------------------------------------------------------
-
-# Use UTF-8 encoding for anything served text/plain or text/html
-AddDefaultCharset utf-8
-
-# Force UTF-8 for a number of file formats
-AddCharset utf-8 .atom .css .js .json .rss .vtt .xml
+  RewriteRule ^(.*) /index.html [NC,L]
