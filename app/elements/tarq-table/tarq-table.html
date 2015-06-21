@@ -125,9 +125,9 @@
 
           if(this._sorts[column]){
             var rev = ( this._sorts[column].reverse ? '' : '^' );
-            this._setValuesInHash({sorts: [e.model.column+rev]});
+            this._setValuesInHash({sorts: [column+rev]});
           }else{
-            this._setValuesInHash({sorts: [e.model.column]});
+            this._setValuesInHash({sorts: [column]});
           }
 
           this._applyHash();
