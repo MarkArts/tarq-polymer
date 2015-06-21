@@ -99,8 +99,9 @@
         _applyHash: function(){
           var hashVals = this._getValuesFromHash(['sorts', 'filters']);
 
+
           hashVals.sorts.forEach(function(sort){
-            this.orderOnColumn(sort, true);
+            this.orderOnColumn(sort);
           }.bind(this));
 
           // todo: add checks to see if functions exists
@@ -113,11 +114,15 @@
         // events
         _theadClick: function(e)
         {
-          this.orderOnColumn(e.model.column);
+          //this.orderOnColumn(e.model.column);
+          // when we can remove sorts from ui this should add the column to the hash instead of replace sorts
+          this._setValuesInHash({sorts: [e.model.column]});
+          this._applyHash();
         },
 
         // functions
         orderOnColumn: function(column, reverse){
+
           // we delete the sorts from the other columns because we can't remove sorts in the ui
           for(var k in this._columns){
             if(this._columns[k] != column){
@@ -270,6 +275,40 @@
         _setValuesInHash: function(vals)
         {
 
+          var hash = window.location.hash;
+
+          for(var key in vals){
+
+            var hashString = this._toHashString(key, vals[key]);
+
+            if(hash.indexOf(key+'=') >= 0){
+              var leftOf = hash.split(key+'=')[1];
+
+              var end = ( leftOf.indexOf('&') >= 0 ? leftOf.indexOf('&') : leftOf.length );
+
+              hash = hash.replace(
+                key + '=' + leftOf.substr(0, end), // we need leftOf because we need to find the first & after val=
+                hashString
+              );
+            }else{
+              if(hash.length > 0){
+                hash = hash + '&' + hashString;
+              }else{
+                hash = hashString;
+              }
+            }
+          }
+
+          window.location.hash = hash;
+
+        },
+        _toHashString: function(name, vals)
+        {
+          if(vals.length == 1){
+            return name + "=" + vals[0];
+          }else{
+            return name + "=" + vals.shift() + ',' + vals.reduce(function(a, v){return a+','+v},'');
+          }
         }
 
       });
