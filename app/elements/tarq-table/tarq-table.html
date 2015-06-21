@@ -112,14 +112,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     {
       var column = e.model.column;
 
+      // because we don't have the ui to remove filters from columns yet we remove the sorts of all other columns
+      for(var k in this.columns){
+        if(this.columns[k] != column){
+          if(this._sorts[this.columns[k]]){
+            delete this._sorts[this.columns[k]];
+          }
+        }
+      }
+
       if(this._sorts[column]){
         this._sorts[column].reverse = !this._sorts[column].reverse;
-
         this.render();
       }else{
         this.addSort(column, {
           weight: 30,
-          reverse: false, // We use this property to toggle between up and down sorting for columns
+          reverse: false,
           func: function(a, b){
             x = (parseInt(a[column]) ? parseInt(a[column]) : a[column]);
             y = (parseInt(b[column]) ? parseInt(b[column]) : b[column]);
