@@ -112,26 +112,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     {
       var column = e.model.column;
 
-      var up = true;
-      if(this._sorts[column])
-        up = !this._sorts[column].up;
+      if(this._sorts[column]){
+        this._sorts[column].reverse = !this._sorts[column].reverse;
 
-      this._sorts = [];
-
-      this.addSort(column, {
-        weight: 30,
-        up: up, // We use this property to toggle between up and down sorting for columns
-        func: function(a, b){
-          x = (parseInt(a[column]) ? parseInt(a[column]) : a[column]);
-          y = (parseInt(b[column]) ? parseInt(b[column]) : b[column]);
-
-          r = (up ? x < y : y < x);
-          if(r)
-            return -1;
-          else
-            return 1;
-        }
-      });
+        this.render();
+      }else{
+        this.addSort(column, {
+          weight: 30,
+          reverse: false, // We use this property to toggle between up and down sorting for columns
+          func: function(a, b){
+            x = (parseInt(a[column]) ? parseInt(a[column]) : a[column]);
+            y = (parseInt(b[column]) ? parseInt(b[column]) : b[column]);
+            if(x < y)
+              return -1;
+            else
+              return 1;
+          }
+        });
+      }
     },
 
     // Functions
@@ -156,6 +154,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var r = 0;
         for(i in sorts){
           r = sorts[i].func(a, b);
+          if(sorts[i].reverse)
+            r = r * -1;
+
           if(r != 0){
             break;
           }
@@ -178,7 +179,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       delete this._filters[name];
       this.render();
     },
-    // s = { weight: 1, func: function(a)}
+    // s = { weight: 1, reverse: false, func: function(a)}
     addSort: function(name, s)
     {
       this._sorts[name] = s;
