@@ -99,8 +99,6 @@
         _applyHash: function(){
           var hashVals = this._getValuesFromHash(['sorts', 'filters']);
 
-          console.log(hashVals);
-
           hashVals.sorts.forEach(function(sort){
             if(sort.indexOf('^') >= 0){
               this.orderOnColumn(sort.replace('^', ''), true);
@@ -146,6 +144,9 @@
               }
             }
           }
+
+          // because all tarq-tables are loaded  when a page loads all tarq tables try to apply the hash to it. Only loading relevant tables will fix this
+          this._sorts = {};
 
           this.addSort(column, {
             weight: 30,
