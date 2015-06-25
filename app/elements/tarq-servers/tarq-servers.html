@@ -5,7 +5,7 @@
   <template>
 
     <iron-ajax
-      auto
+      id="request"
       url='http://localhost:3000/servers'
       handle-as='json'
       on-response='handleResponse'
@@ -38,6 +38,8 @@
       }
     },
 
+    this._selected = false,
+
     handleResponse: function(request){
       var data = request.detail.response;
 
@@ -58,6 +60,13 @@
 
       this.$.table.setColumns(columns);
       this.$.table.setRows(rows);
+    },
+
+    onSelect: function(){
+      if(!this._selected){
+        this._selected = true;
+        this.$.request.generateRequest();
+      }
     }
 
   });

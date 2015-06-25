@@ -114,7 +114,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-toolbar>
 
         <!-- Main Content -->
-          <iron-pages attr-for-selected="data-route" selected="{{route}}">
+          <iron-pages id="pages" attr-for-selected="data-route" selected="{{route}}">
 
             <section data-route="home">
               <paper-material elevation="1">
@@ -127,25 +127,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <section data-route="plugins">
               <paper-material elevation="1">
-                <tarq-plugins> </tarq-plugins>
+                <tarq-plugins class="page" data-route="plugins"> </tarq-plugins>
               </paper-material>
             </section>
 
             <section data-route="servers">
               <paper-material elevation="1">
-                <tarq-servers> </tarq-servers>
+                <tarq-servers class="page" > </tarq-servers>
               </paper-material>
             </section>
 
             <section data-route="vulnerabilities">
               <paper-material elevation="1">
-                <tarq-vulnerabilities> </tarq-vulnerabilities>
+                <tarq-vulnerabilities class="page"> </tarq-vulnerabilities>
               </paper-material>
             </section>
 
             <section data-route="websites">
               <paper-material elevation="1">
-               <tarq-websites> </tarq-websites>
+               <tarq-websites class="page"> </tarq-websites>
               </paper-material>
             </section>
 
@@ -158,14 +158,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  text="Caching complete! This app will work offline.">
     </paper-toast>
 
-    <platinum-sw-register auto-register
+<!--     <platinum-sw-register auto-register
                           clients-claim
                           skip-waiting
                           on-service-worker-installed="displayInstalledToast">
       <platinum-sw-cache default-cache-strategy="networkFirst"
                          precache-file="precache.json">
       </platinum-sw-cache>
-    </platinum-sw-register>
+    </platinum-sw-register> -->
 
   </template>
 

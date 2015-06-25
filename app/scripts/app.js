@@ -28,6 +28,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   // See https://github.com/Polymer/polymer/issues/1381
   window.addEventListener('WebComponentsReady', function() {
     document.querySelector('body').removeAttribute('unresolved');
+
+    var pages = document.getElementById('pages');
+    var firstPage = pages.selectedItem.getElementsByClassName('page')[0];
+    firstPage.onSelect();
+
+    pages.addEventListener('iron-select', function(e){
+      e.detail.item.getElementsByClassName('page')[0].onSelect();
+    });
+
   });
 
 })(document);
