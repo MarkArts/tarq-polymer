@@ -7,7 +7,7 @@
     <table>
       <thead>
         <tr>
-          <template is='dom-repeat' items='{{_columns}}' as='column'>
+          <template is='dom-repeat' items='{{_columns }}' as='column'>
             <td on-click="_theadClick">{{column}}</td>
           </template>
         </tr>
@@ -70,6 +70,12 @@
         is: 'tarq-table',
 
         properties: {
+          auto: {
+            type: Boolean,
+            value: false,
+            notify: false
+          },
+
           _rows: {
             type: Array,
             value: [
@@ -90,22 +96,40 @@
           },
           _sorts: {
             type: Object,
-            value: {},
             notify: false
           }
         },
 
+        ready: function(){
+
+          this._sorts = {};
+          this._filters = {};
+
+          if(this.auto){
+            this.load();
+          }
+        },
+
+        // TODO: Rename this function to something more standard (maybe setup / ready)
+        load: function(){
+          this._applyHash();
+        },
+
         // /table#sorts=column1^,column2&filters=func1,func2,func3,func4&customSorts=sortFunc1,sortFunc2
         _applyHash: function(){
+
+          // TODO: currently the hash of this table is read before a page switch so the hash of the last page is read
+
           var hashVals = this._getValuesFromHash(['sorts', 'filters']);
 
-          hashVals.sorts.forEach(function(sort){
+          for(key in hashVals.sorts){
+            sort = hashVals.sorts[key];
             if(sort.indexOf('^') >= 0){
               this.orderOnColumn(sort.replace('^', ''), true);
             }else{
               this.orderOnColumn(sort);
             }
-          }.bind(this));
+          }
 
           // todo: add checks to see if functions exists
           hashVals.filters.forEach(function(f){
@@ -135,7 +159,6 @@
         orderOnColumn: function(column, reverse){
           if (typeof reverse === 'undefined') { reverse = false; }
 
-
           // we delete the sorts from the other columns because we can't remove sorts in the ui
           for(var k in this._columns){
             if(this._columns[k] != column){
@@ -144,9 +167,6 @@
               }
             }
           }
-
-          // because all tarq-tables are loaded  when a page loads all tarq tables try to apply the hash to it. Only loading relevant tables will fix this
-          this._sorts = {};
 
           this.addSort(column, {
             weight: 30,
@@ -211,6 +231,7 @@
         addSort: function(name, s)
         {
           this._sorts[name] = s;
+
           this.render();
         },
         removeSort: function(name)
@@ -229,14 +250,12 @@
         setRows: function(rows)
         {
           this.set('_rows', rows);
-          this._applyHash();
         },
         getColumns: function(){
           return this._columns;
         },
         setColumns: function(columns){
           this.set('_columns', columns);
-          this._applyHash();
         },
 
 

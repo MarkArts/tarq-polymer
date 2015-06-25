@@ -67,6 +67,8 @@
     onSelect: function(){
       if(!this._selected){
         this._selected = true;
+
+        this.$.table.load();
         this.$.request.generateRequest();
       }
     }
