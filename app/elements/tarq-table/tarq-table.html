@@ -122,6 +122,13 @@
         // TODO: Rename this function to something more standard (maybe setup / ready)
         load: function(){
           this._applyHash();
+
+          // this is currently "broken" because changed the hash will triger this on all active tarqtables but we use at as workaround
+          window.addEventListener("hashchange", function(newURL, oldURL){
+            this._applyHash();
+          }.bind(this));
+
+
         },
 
         // /table#sorts=column1^,column2&filters=func1,func2,func3,func4&customSorts=sortFunc1,sortFunc2
