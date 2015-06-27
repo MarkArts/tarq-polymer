@@ -53,7 +53,18 @@
       for(var d in data){
         rows.push({
           name: data[d].name,
-          vulnerabilities: data[d].vulnerabilities.length,
+          vulnerabilities: {
+            data: data[d].vulnerabilities,
+            toString: function(){
+              if(this.data.length == 1){
+                return this.data[0].title;
+              }
+              return this.data.length
+            },
+            sortValue: function(){
+              return this.data.length;
+            }
+          },
           websites: data[d].websites.length
         });
       }
@@ -64,11 +75,11 @@
 
 
       this.$.table.registerFilter('dangerousPlugins', function(row){
-        return row.vulnerabilities > 2;
+        return row.vulnerabilities.data.length >= 1;
       });
 
       this.$.table.registerFilter('populairPlugins', function(row){
-        return row.websites > 1;
+        return row.websites.data > 5;
       });
 
       this.$.table.load();

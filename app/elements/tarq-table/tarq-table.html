@@ -17,7 +17,7 @@
         <template id="rows" is='dom-repeat' items='{{_rows}}' as='row' filter="_filter", sort="_sort" >
           <tr>
             <template is='dom-repeat' items='{{_columns}}' as='column'>
-              <td>{{_getColumnFrom(column, row)}}</td>
+              <td>{{_getStringFromItem(column, row)}}</td>
             </template>
           </tr>
         </template>
@@ -75,17 +75,15 @@
             value: false,
             notify: false
           },
+          // [ {data: {}, toString: f}, {data: {}, toString: f} ]
           _rows: {
             type: Array,
-            value: [
-              ['1','2','3'],
-              ['1','2','3']
-            ],
+            value: [],
             notify: false
           },
           _columns: {
             type: Array,
-            value: ['c1','c2','c3'],
+            value: [],
             notify: false
           },
           _filters: {
@@ -184,9 +182,12 @@
               weight: 1,
               reverse: false,
               enabled: false,
-              func: function(a, b){
-                x = (parseInt(a[this]) ? parseInt(a[this]) : a[this]);
-                y = (parseInt(b[this]) ? parseInt(b[this]) : b[this]);
+              func: function(rowA, rowB){
+                var valA = rowA[this].sortValue();
+                var valB = rowB[this].sortValue();
+
+                x = (parseInt(valA) ? parseInt(valA) : valA);
+                y = (parseInt(valB) ? parseInt(valB) : valB);
                 if(x < y)
                   return -1;
                 else
@@ -204,13 +205,13 @@
             return true;
           }
         },
-        _sort: function(a, b)
+        _sort: function(rowA, rowB)
         {
           if(this._sortsEnabled.length > 0){
             var sorts = this._sortsEnabled;
             var r = 0;
             for(i in sorts){
-              r = sorts[i].func(a, b);
+              r = sorts[i].func(rowA, rowB);
 
               if(sorts[i].reverse){
                 r = r * -1;
@@ -325,6 +326,24 @@
         },
         setRows: function(rows)
         {
+          rows = rows.map(function(row){
+            for(var key in row){
+              if(typeof row[key] !== 'object'){
+                row[key] = {
+                  data: row[key],
+                  toString: function(){ return this.data; }
+                }
+              }
+
+              if(!row[key].sortValue){
+                row[key].sortValue = function(){ return this.toString() }
+              }
+
+            }
+
+            return row;
+          });
+
           this.set('_rows', rows);
         },
         getColumns: function(){
@@ -338,9 +357,9 @@
 
         // helpers
         // We need this helper function because polymer data binding does not support selecting a prop from a string
-        _getColumnFrom: function(column, row)
+        _getStringFromItem: function(column, row)
         {
-          return row[column];
+          return row[column].toString();
         },
         _ifAny: function(x, fs)
         {
@@ -350,6 +369,10 @@
             }
           }
           return false;
+        },
+        _stringFromItem: function(item)
+        {
+          return item.toString();
         },
         _ifAll: function(x, fs)
         {
