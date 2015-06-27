@@ -3,9 +3,8 @@
 > A front-end app that uses the tarq-api to display information about websites
 
 ### known issues
-* Browsersync doesn't corretly sync menu navigation. This can be fixe by not using hasbang routing (#!/route)
-* the server browser sync starts can only use hasbang. This can be fixed by intergrating a python server
-* there are no configurable parameters at this moment
+* We use a workaround in browsersync so we can use normal urls but /user/:name wil break the app
+* There are no configurable parameters at this moment
 
 ## Setup
 
