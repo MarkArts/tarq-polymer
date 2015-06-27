@@ -56,8 +56,8 @@
           vulnerabilities: {
             data: data[d].vulnerabilities,
             toString: function(){
-              if(this.data.length == 1){
-                return this.data[0].title;
+              if(this.data.length == 2){
+                return this.data[0].title + ", " + this.data[1].title;
               }
               return this.data.length
             },
