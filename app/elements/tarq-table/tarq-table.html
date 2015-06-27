@@ -114,9 +114,7 @@
           // we initialize the values again because the default value polymer gives it are pointers (so all tarq tables point towards the same default value)
 
           this._sorts = {};
-         // this._sortsEnabled = [];
           this._filters = {};
-         // this._filtersEnabled = [];
 
           if(this.auto){
             this.load();
@@ -130,9 +128,9 @@
 
         // /table#sorts=column1^,column2&filters=func1,func2,func3,func4&customSorts=sortFunc1,sortFunc2
         _applyHash: function(){
-          // because we can't currently remove a sort in the ui we reset the sorts before we apply the hash
-          // You can make an argument that this should happen anyaway for consitensie
-          this.disableAllSorts();
+
+          this._disableAllSorts();
+          this._disableAllFilters();
 
           var hashVals = this._getValuesFromHash(['sorts', 'filters']);
 
@@ -142,7 +140,7 @@
             sort = sort.replace('^', '');
             if(this._sorts[sort]){
               this._sorts[sort].reverse = reverse; // we should have a public function to set the reverse value
-              this.enableSort(sort);
+              this._sorts[sort].enabled = true;
             }else{
               console.log("There is a sort in the hash that does not exist: ", sort);
             }
@@ -150,10 +148,18 @@
 
           this._resolveSorts();
 
-          // todo: add checks to see if functions exists
-          hashVals.filters.forEach(function(f){
-            this.addFilter(f, window[f]);
-          }.bind(this));
+          for(key in hashVals.filters){
+            var filterName = hashVals.filters[key]
+            if(this._filters[filterName]){
+              this._filters[filterName].enabled = true;
+            }else{
+              console.log("There is a filter in the hash that does not exist: ", filterName);
+            }
+          }
+
+          this._resolveFilters();
+
+          this.render();
 
         },
 
@@ -192,8 +198,8 @@
 
         _filter: function(item)
         {
-          if(Object.keys(this._filters).length > 0){
-            return this._ifAll(item, this._filters);
+          if(this._filtersEnabled.length > 0){
+            return this._ifAll(item, this._filtersEnabled);
           }else{
             return true;
           }
@@ -222,16 +228,50 @@
           }
         },
         // f = function(i)
-        addFilter: function(name, f)
+        registerFilter: function(name, f)
         {
-          this._filters[name] = f;
-          this.render();
+          this._filters[name] = {
+            enabled: false,
+            func: f
+          }
+        },
+        enableFilter: function(name){
+          this._addValueToHash(name, "filters");
+          this._applyHash();
+        },
+        disableFilter: function(name){
+          this._removeValueFromHash(name, "filters");
+          this._applyHash();
+        },
+        disableAllFilter: function(){
+          this._setValuesInHash({filters: []});
+          this._applyHash();
+        },
+        _disableAllFilters: function(){
+          for(var key in this._filters){
+            this._filters[key].enabled = false;
+          }
         },
         removeFilter: function(name, f)
         {
           delete this._filters[name];
           this.render();
         },
+        _resolveFilters: function()
+        {
+          // we need to store the resolved sorts because resolving it dynamicly would mean calling it a few thousand times per sort
+          this._filtersEnabled = Object.keys(this._filters).map(function (key) {
+            // faltten the key value array to a array containing all values (must be a better way to do this)
+            return this._filters[key]
+          }.bind(this)).filter(function(filter){
+            // filter out only the enabled sorts
+            return filter.enabled;
+          }).map(function(filter){
+            // place only the functions inside the resolbed filters array
+            return filter.func
+          });
+        },
+
         // s = { weight: 1, reverse: false, func: function(a) }
         registerSort: function(name, s)
         {
@@ -239,21 +279,21 @@
           this._sorts[name] = s;
         },
         enableSort: function(name){
-          this._sorts[name].enabled = true;
-          this._resolveSorts();
+          this._addValueToHash(name,'sorts');
+          this._applyHash();
         },
         disableSort: function(name){
-          this.sorts[name].enabled = false;
-          this._resolveSorts();
+          this._removeValueFromHash(name,'sorts');
+          this._applyHash();
         },
         disableAllSorts: function(){
+          this._setValuesInHash({sorts:[]});
+          this._applyHash();
+        },
+        _disableAllSorts: function(){
           for(var key in this._sorts){
             this._sorts[key].enabled = false;
           }
-        },
-        reverseSort: function(name){
-          this._sorts[name].reverse = !this._sorts[name].reverse
-          this._resolveSorts();
         },
         removeSort: function(name)
         {
@@ -274,8 +314,6 @@
             // sort the enabled sorts on their weight
             return b.wheight - a.wheight;
           });
-
-          this.render(); // this might not be the best place to trigger a re render but we can asume that everytime the sorts are resolved the sorts array has changed and possible the output
         },
         render: function()
         {
@@ -333,7 +371,7 @@
               var s = hash.split(val+"=")[1];
 
               if(s.indexOf('&') >= 0){
-                s = s.substr(0, s.indexOf('&')-1);
+                s = s.substr(0, s.indexOf('&'));
               }
               response[val] = s.split(',');
             }
@@ -371,14 +409,42 @@
           window.location.hash = hash;
 
         },
+        _addValueToHash: function(value, prop)
+        {
+          // we remove the value first to avoud duplicates
+          var arr = this._getValuesFromHash([prop])[prop];
+
+          // remove the value so we add uniqe
+          while(arr.indexOf(value) >= 0 ){
+            arr.splice(arr.indexOf(value), 1);
+          }
+
+          arr.push(value);
+
+          var n = {}
+          n[prop] = arr
+          this._setValuesInHash(n);
+        },
+        _removeValueFromHash: function(value, prop)
+        {
+          var arr = this._getValuesFromHash([prop])[prop];
+
+          while(arr.indexOf(value) >= 0 ){
+            arr.splice(arr.indexOf(value), 1);
+          }
+
+          var n = {}
+          n[prop] = arr
+          this._setValuesInHash(n);
+        },
         _toHashString: function(name, vals)
         {
           if(vals.length <= 0){
             return '';
           }else if(vals.length == 1){
             return name + "=" + vals[0];
-          }else{
-            return name + "=" + vals.shift() + ',' + vals.reduce(function(a, v){return a+','+v},'');
+          }else{s
+            return name + "=" + vals.shift() + vals.reduce(function(a, v){return a + ',' + v}, '');
           }
         }
 
