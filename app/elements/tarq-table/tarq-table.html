@@ -443,7 +443,7 @@
             return '';
           }else if(vals.length == 1){
             return name + "=" + vals[0];
-          }else{s
+          }else{
             return name + "=" + vals.shift() + vals.reduce(function(a, v){return a + ',' + v}, '');
           }
         }

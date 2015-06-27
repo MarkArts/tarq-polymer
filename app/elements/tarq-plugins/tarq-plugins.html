@@ -62,8 +62,16 @@
       this.$.table.setColumns(this.columns);
       this.$.table.setRows(this.rows);
 
-      this.$.table.load();
 
+      this.$.table.registerFilter('dangerousPlugins', function(row){
+        return row.vulnerabilities > 2;
+      });
+
+      this.$.table.registerFilter('populairPlugins', function(row){
+        return row.websites > 1;
+      });
+
+      this.$.table.load();
     },
 
     onSelect: function(){
