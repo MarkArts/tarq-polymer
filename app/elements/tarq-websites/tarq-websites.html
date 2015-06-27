@@ -63,13 +63,13 @@
       this.$.table.setColumns(columns);
       this.$.table.setRows(rows);
 
+
+      this.$.table.load();
     },
 
     onSelect: function(){
       if(!this._selected){
         this._selected = true;
-
-        this.$.table.load();
         this.$.request.generateRequest();
       }
     }

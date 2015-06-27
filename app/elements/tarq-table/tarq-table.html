@@ -75,7 +75,6 @@
             value: false,
             notify: false
           },
-
           _rows: {
             type: Array,
             value: [
@@ -94,16 +93,30 @@
             value: {},
             notify: false
           },
+          _filtersEnabled:{
+            type: Array,
+            value: [],
+            notify: false
+          },
           _sorts: {
             type: Object,
+            notify: false
+          },
+          _sortsEnabled: {
+            type: Array,
+            value: [],
             notify: false
           }
         },
 
         ready: function(){
 
+          // we initialize the values again because the default value polymer gives it are pointers (so all tarq tables point towards the same default value)
+
           this._sorts = {};
+         // this._sortsEnabled = [];
           this._filters = {};
+         // this._filtersEnabled = [];
 
           if(this.auto){
             this.load();
@@ -117,19 +130,25 @@
 
         // /table#sorts=column1^,column2&filters=func1,func2,func3,func4&customSorts=sortFunc1,sortFunc2
         _applyHash: function(){
-
-          // TODO: currently the hash of this table is read before a page switch so the hash of the last page is read
+          // because we can't currently remove a sort in the ui we reset the sorts before we apply the hash
+          // You can make an argument that this should happen anyaway for consitensie
+          this.disableAllSorts();
 
           var hashVals = this._getValuesFromHash(['sorts', 'filters']);
 
           for(key in hashVals.sorts){
-            sort = hashVals.sorts[key];
-            if(sort.indexOf('^') >= 0){
-              this.orderOnColumn(sort.replace('^', ''), true);
+            var sort = hashVals.sorts[key]
+            var reverse = (sort.indexOf('^') >= 0);
+            sort = sort.replace('^', '');
+            if(this._sorts[sort]){
+              this._sorts[sort].reverse = reverse; // we should have a public function to set the reverse value
+              this.enableSort(sort);
             }else{
-              this.orderOnColumn(sort);
+              console.log("There is a sort in the hash that does not exist: ", sort);
             }
           }
+
+          this._resolveSorts();
 
           // todo: add checks to see if functions exists
           hashVals.filters.forEach(function(f){
@@ -141,46 +160,36 @@
         // events
         _theadClick: function(e)
         {
-          // when we can remove sorts from ui this should add the column to the hash instead of replace sorts
 
           var column = e.model.column;
 
-          if(this._sorts[column]){
-            var rev = ( this._sorts[column].reverse ? '' : '^' );
-            this._setValuesInHash({sorts: [column+rev]});
-          }else{
-            this._setValuesInHash({sorts: [column]});
-          }
+          var rev = ( this._sorts[column].reverse ? '' : '^' );
+          this._setValuesInHash({sorts: [column+rev]});
 
           this._applyHash();
         },
 
-        // functions
-        orderOnColumn: function(column, reverse){
-          if (typeof reverse === 'undefined') { reverse = false; }
-
-          // we delete the sorts from the other columns because we can't remove sorts in the ui
+        _generateSortsForColumns: function()
+        {
           for(var k in this._columns){
-            if(this._columns[k] != column){
-              if(this._sorts[this._columns[k]]){
-                delete this._sorts[this._columns[k]];
-              }
-            }
-          }
+            var column = this._columns[k];
 
-          this.addSort(column, {
-            weight: 30,
-            reverse: reverse,
-            func: function(a, b){
-              x = (parseInt(a[column]) ? parseInt(a[column]) : a[column]);
-              y = (parseInt(b[column]) ? parseInt(b[column]) : b[column]);
-              if(x < y)
-                return -1;
-              else
-                return 1;
-            }
-          });
+            this.registerSort(column, {
+              weight: 1,
+              reverse: false,
+              enabled: false,
+              func: function(a, b){
+                x = (parseInt(a[this]) ? parseInt(a[this]) : a[this]);
+                y = (parseInt(b[this]) ? parseInt(b[this]) : b[this]);
+                if(x < y)
+                  return -1;
+                else
+                  return 1;
+              }.bind(column) // we bind the column to this. if we don't column will be a reference to the last column var in the for
+            })
+          }
         },
+
         _filter: function(item)
         {
           if(Object.keys(this._filters).length > 0){
@@ -191,19 +200,15 @@
         },
         _sort: function(a, b)
         {
-          if(Object.keys(this._sorts).length > 0){
-
-            var sorts = Object.keys(this._sorts).map(function (key) {return this._sorts[key]}.bind(this)); // must be a better way to do this
-
-            sorts.sort(function(a,b){
-              return b.wheight - a.wheight;
-            });
-
+          if(this._sortsEnabled.length > 0){
+            var sorts = this._sortsEnabled;
             var r = 0;
             for(i in sorts){
               r = sorts[i].func(a, b);
-              if(sorts[i].reverse)
+
+              if(sorts[i].reverse){
                 r = r * -1;
+              }
 
               if(r != 0){
                 break;
@@ -227,17 +232,50 @@
           delete this._filters[name];
           this.render();
         },
-        // s = { weight: 1, reverse: false, func: function(a)}
-        addSort: function(name, s)
+        // s = { weight: 1, reverse: false, func: function(a) }
+        registerSort: function(name, s)
         {
+          s.enabled = false;
           this._sorts[name] = s;
-
-          this.render();
+        },
+        enableSort: function(name){
+          this._sorts[name].enabled = true;
+          this._resolveSorts();
+        },
+        disableSort: function(name){
+          this.sorts[name].enabled = false;
+          this._resolveSorts();
+        },
+        disableAllSorts: function(){
+          for(var key in this._sorts){
+            this._sorts[key].enabled = false;
+          }
+        },
+        reverseSort: function(name){
+          this._sorts[name].reverse = !this._sorts[name].reverse
+          this._resolveSorts();
         },
         removeSort: function(name)
         {
           delete this._sorts[name];
+          this._resolveSorts();
           this.render();
+        },
+        _resolveSorts: function()
+        {
+          // we need to store the resolved sorts because resolving it dynamicly would mean calling it a few thousand times per sort
+          this._sortsEnabled = Object.keys(this._sorts).map(function (key) {
+            // faltten the key value array to a array containing all values (must be a better way to do this)
+            return this._sorts[key]
+          }.bind(this)).filter(function(sort){
+            // filter out only the enabled sorts
+            return sort.enabled;
+          }).sort(function(a,b){
+            // sort the enabled sorts on their weight
+            return b.wheight - a.wheight;
+          });
+
+          this.render(); // this might not be the best place to trigger a re render but we can asume that everytime the sorts are resolved the sorts array has changed and possible the output
         },
         render: function()
         {
@@ -256,6 +294,7 @@
         },
         setColumns: function(columns){
           this.set('_columns', columns);
+          this._generateSortsForColumns();
         },
 
 
