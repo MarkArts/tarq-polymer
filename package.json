@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "dependencies": {},
   "scripts": {
-    "deps": "npm install gulp && npm install bower && npm install && bower install"
+    "deps": "npm install -g gulp && npm install -g bower && npm install && bower install"
   },
   "repository" : {
     "type" : "git",
