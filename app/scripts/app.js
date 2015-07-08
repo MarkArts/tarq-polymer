@@ -32,7 +32,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var pages = document.getElementById('pages');
     var firstPage = pages.selectedItem.getElementsByClassName('page')[0];
     if(firstPage){
-      page.onSelect();
+      firstPage.onSelect();
     }
 
     pages.addEventListener('iron-select', function(e){
