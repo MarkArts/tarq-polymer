@@ -31,10 +31,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     var pages = document.getElementById('pages');
     var firstPage = pages.selectedItem.getElementsByClassName('page')[0];
-    firstPage.onSelect();
+    if(firstPage){
+      page.onSelect();
+    }
 
     pages.addEventListener('iron-select', function(e){
-      e.detail.item.getElementsByClassName('page')[0].onSelect();
+      var page = e.detail.item.getElementsByClassName('page')[0];
+      if(page){
+        page.onSelect();
+      }
     });
 
   });
