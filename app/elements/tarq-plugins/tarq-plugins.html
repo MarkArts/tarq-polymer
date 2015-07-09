@@ -76,11 +76,11 @@
       this.$.table.setRows(this.rows);
 
 
-      this.$.table.registerFilter('dangerousPlugins', function(row){
+      this.$.table.registerFilter('dangerousPlugins', function(params, row){
         return row.vulnerabilities.data.length >= 1;
       });
 
-      this.$.table.registerFilter('populairPlugins', function(row){
+      this.$.table.registerFilter('populairPlugins', function(params, row){
         return row.websites.data > 5;
       });
 

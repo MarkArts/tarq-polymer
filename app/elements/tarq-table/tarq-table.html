@@ -128,7 +128,6 @@
             this._applyHash();
           }.bind(this));
 
-
         },
 
         // /table#sorts=column1^,column2&filters=func1,func2,func3,func4&customSorts=sortFunc1,sortFunc2
@@ -140,7 +139,7 @@
           var hashVals = this._getValuesFromHash(['sorts', 'filters']);
 
           for(key in hashVals.sorts){
-            var sort = hashVals.sorts[key]
+            var sort = hashVals.sorts[key].func;
             var reverse = (sort.indexOf('^') >= 0);
             sort = sort.replace('^', '');
             if(this._sorts[sort]){
@@ -154,8 +153,9 @@
           this._resolveSorts();
 
           for(key in hashVals.filters){
-            var filterName = hashVals.filters[key]
+            var filterName = hashVals.filters[key].func;
             if(this._filters[filterName]){
+              this._filters[filterName].params = hashVals.filters[key].params
               this._filters[filterName].enabled = true;
             }else{
               console.log("There is a filter in the hash that does not exist: ", filterName);
@@ -199,11 +199,22 @@
                   return -1;
                 else
                   return 1;
+
               }.bind(column) // we bind the column to this. if we don't column will be a reference to the last column var in the for
             })
           }
         },
+        _generateFiltersForColumns: function()
+        {
+          for(var k in this._columns){
+            var column = this._columns[k];
 
+            this.registerFilter(column, function(params, row){
+              console.log(params, row[this].toString());
+                return params.indexOf(row[this].toString()) >= 0;
+            }.bind(column)); // we bind the column to this. if we don't column will be a reference to the last column var in the for
+          }
+        },
         _filter: function(item)
         {
           if(this._filtersEnabled.length > 0){
@@ -272,11 +283,16 @@
             // faltten the key value array to a array containing all values (must be a better way to do this)
             return this._filters[key]
           }.bind(this)).filter(function(filter){
-            // filter out only the enabled sorts
+            // filter out only the enabled filters
             return filter.enabled;
           }).map(function(filter){
-            // place only the functions inside the resolbed filters array
-            return filter.func
+            // place only the functions inside the resolved filters array
+
+
+            console.log(filter);
+
+            //TODO: THIS IS UGLY, We bind the params so the acutal filtering has it easier (it gets called thousands of times) but we can only pass the row argument as second parameter
+            return filter.func.bind(null, filter.params)
           });
         },
 
@@ -338,7 +354,7 @@
               if(typeof row[key] !== 'object'){
                 row[key] = {
                   data: row[key],
-                  toString: function(){ return this.data; }
+                  toString: function(){ return this.data.toString() }
                 }
               }
 
@@ -359,6 +375,7 @@
         setColumns: function(columns){
           this.set('_columns', columns);
           this._generateSortsForColumns();
+          this._generateFiltersForColumns();
         },
 
 
@@ -400,10 +417,22 @@
             if(hash.indexOf(val+"=") >= 0){
               var s = hash.split(val+"=")[1];
 
+              // remove trailing parameters from the string
               if(s.indexOf('&') >= 0){
                 s = s.substr(0, s.indexOf('&'));
               }
-              response[val] = s.split(',');
+
+              s.split(',').forEach(function(func){
+                if(func.indexOf(':') >= 0 ){
+                  var vals = func.split(':');
+                  response[val].push({
+                    func: vals.shift(),
+                    params: vals
+                  });
+                }else{
+                  response[val].push({ func: func });
+                }
+              });
             }
           })
 
