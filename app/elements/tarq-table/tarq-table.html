@@ -210,8 +210,7 @@
             var column = this._columns[k];
 
             this.registerFilter(column, function(params, row){
-              console.log(params, row[this].toString());
-                return params.indexOf(row[this].toString()) >= 0;
+              return params.indexOf(row[this].filterValue()) >= 0;
             }.bind(column)); // we bind the column to this. if we don't column will be a reference to the last column var in the for
           }
         },
@@ -360,6 +359,10 @@
 
               if(!row[key].sortValue){
                 row[key].sortValue = function(){ return this.toString() }
+              }
+
+              if(!row[key].filterValue){
+                row[key].filterValue = function(){ return this.toString() }
               }
 
             }

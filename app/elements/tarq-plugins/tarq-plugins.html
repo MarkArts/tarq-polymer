@@ -61,10 +61,13 @@
               if(this.data.length == 2){
                 return this.data[0].title + ", " + this.data[1].title;
               }
-              return this.data.length
+              return this.data.length.toString();
             },
             sortValue: function(){
-              return this.data.length;
+              return this.data.length.toString();
+            },
+            filterValue: function(){
+              return this.data.length.toString();
             }
           },
           websites: data[d].websites.length
