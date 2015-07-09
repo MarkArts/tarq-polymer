@@ -55,14 +55,13 @@
           type: data[d].cms_type,
           version: data[d].version,
           plugins: data[d].plugins.length,
-          vulnerabilities: data[d].vulnerabilities.length,
-          has_errors: data[d].has_errors
+          vulnerabilities: "<a href='/vulnerabilities#filters=website:"+data[d].name+"'>" + data[d].vulnerabilities.length + "</a>",
+          has_errors: data[d].has_errors,
         });
       }
 
       this.$.table.setColumns(columns);
       this.$.table.setRows(rows);
-
 
       this.$.table.load();
     },

@@ -56,13 +56,21 @@
           title: data[d].title,
           type: data[d].target_type,
           plugin: data[d].plugins[0].name,
-          websites: data[d].websites.length,
+          websites: {
+            data: data[d].websites,
+            toString: function(){ return this.data.length.toString() }
+          },
           vuln_type: data[d].vuln_type
         });
       }
 
       this.$.table.setColumns(columns);
       this.$.table.setRows(rows);
+
+      this.$.table.registerFilter('website', function(params, row){
+        console.log(params, row);
+        return row['websites'].data.map(function(val){ return val.name; }).indexOf(params[0]) >= 0;
+      });
 
       this.$.table.load();
 
