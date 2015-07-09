@@ -68,7 +68,6 @@
       this.$.table.setRows(rows);
 
       this.$.table.registerFilter('website', function(params, row){
-        console.log(params, row);
         return row['websites'].data.map(function(val){ return val.name; }).indexOf(params[0]) >= 0;
       });
 
