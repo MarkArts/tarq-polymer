@@ -17,7 +17,9 @@
         <template id="rows" is='dom-repeat' items='{{_rows}}' as='row' filter="_filter", sort="_sort" >
           <tr>
             <template is='dom-repeat' items='{{_columns}}' as='column'>
-              <td>{{_getStringFromItem(column, row)}}</td>
+              <td>
+                <tarq-unsafe unsafe="{{_getStringFromItem(column, row)}}"</tarq-unsafe>
+              </td>
             </template>
           </tr>
         </template>
