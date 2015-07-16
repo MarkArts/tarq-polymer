@@ -25,79 +25,80 @@
     }
   </style>
 
-</dom-module>
-<script>
-(function() {
-  Polymer({
-    is: 'tarq-plugins',
+  <script>
+  (function() {
+    Polymer({
+      is: 'tarq-plugins',
 
-    properties: {
-      foo: {
-        type: String,
-        value: 'bar',
-        notify: true
+      properties: {
+        foo: {
+          type: String,
+          value: 'bar',
+          notify: true
+        },
+        rows: Array
       },
-      rows: Array
-    },
 
-    _selected: false,
+      _selected: false,
 
-    handleResponse: function(request){
-      var data = request.detail.response;
+      handleResponse: function(request){
+        var data = request.detail.response;
 
-      this.columns = [
-        "name",
-        "vulnerabilities",
-        "websites"
-      ];
+        this.columns = [
+          "name",
+          "vulnerabilities",
+          "websites"
+        ];
 
-      var rows = []
-      for(var d in data){
-        rows.push({
-          name: data[d].name,
-          vulnerabilities: {
-            data: data[d].vulnerabilities,
-            toString: function(){
-              if(this.data.length == 1){
-                return this.data[0].title;
+        var rows = []
+        for(var d in data){
+          rows.push({
+            name: data[d].name,
+            vulnerabilities: {
+              data: data[d].vulnerabilities,
+              toString: function(){
+                if(this.data.length == 1){
+                  return this.data[0].title;
+                }
+                return this.data.length.toString();
+              },
+              sortValue: function(){
+                return this.data.length.toString();
+              },
+              filterValue: function(){
+                return this.data.length.toString();
               }
-              return this.data.length.toString();
             },
-            sortValue: function(){
-              return this.data.length.toString();
-            },
-            filterValue: function(){
-              return this.data.length.toString();
-            }
-          },
-          websites: data[d].websites.length
+            websites: data[d].websites.length
+          });
+        }
+        this.set('rows', rows);
+
+        this.$.table.setColumns(this.columns);
+        this.$.table.setRows(this.rows);
+
+
+        this.$.table.registerFilter('dangerousPlugins', function(params, row){
+          return row.vulnerabilities.data.length >= 1;
         });
+
+        this.$.table.registerFilter('populairPlugins', function(params, row){
+          return row.websites.data > 5;
+        });
+
+        this.$.table.load();
+      },
+
+      onSelect: function(){
+        if(!this._selected){
+          this._selected = true;
+
+          this.$.request.generateRequest();
+        }
       }
-      this.set('rows', rows);
 
-      this.$.table.setColumns(this.columns);
-      this.$.table.setRows(this.rows);
+    });
+  })();
+  </script>
 
-
-      this.$.table.registerFilter('dangerousPlugins', function(params, row){
-        return row.vulnerabilities.data.length >= 1;
-      });
-
-      this.$.table.registerFilter('populairPlugins', function(params, row){
-        return row.websites.data > 5;
-      });
-
-      this.$.table.load();
-    },
-
-    onSelect: function(){
-      if(!this._selected){
-        this._selected = true;
-
-        this.$.request.generateRequest();
-      }
-    }
-
-  });
-})();
-</script>
+</dom-module>

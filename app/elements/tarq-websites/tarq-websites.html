@@ -21,60 +21,62 @@
     }
   </style>
 
+  <script>
+  (function() {
+    Polymer({
+      is: 'tarq-websites',
+
+      properties: {
+        foo: {
+          type: String,
+          value: 'bar',
+          notify: true
+        }
+      },
+
+      _selected: false,
+
+      handleResponse: function(request){
+        var data = request.detail.response;
+        var columns = [
+          "name",
+          "type",
+          "version",
+          "plugins",
+          "server",
+          "vulnerabilities",
+          "has_errors"
+        ];
+
+        var rows = [];
+        for(var d in data){
+          rows.push({
+            name: data[d].name,
+            type: data[d].cms_type,
+            version: data[d].version,
+            plugins: data[d].plugins.length,
+            server: data[d].server.name,
+            vulnerabilities: "<a href='/vulnerabilities#filters=website:"+data[d].name+"'>" + data[d].vulnerabilities.length + "</a>",
+            has_errors: data[d].has_errors,
+          });
+        }
+
+        this.$.table.setColumns(columns);
+        this.$.table.setRows(rows);
+
+        this.$.table.load();
+      },
+
+      onSelect: function(){
+        if(!this._selected){
+          this._selected = true;
+          this.$.request.generateRequest();
+        }
+      }
+
+    });
+  })();
+  </script>
+
+
 </dom-module>
-<script>
-(function() {
-  Polymer({
-    is: 'tarq-websites',
-
-    properties: {
-      foo: {
-        type: String,
-        value: 'bar',
-        notify: true
-      }
-    },
-
-    _selected: false,
-
-    handleResponse: function(request){
-      var data = request.detail.response;
-      var columns = [
-        "name",
-        "type",
-        "version",
-        "plugins",
-        "server",
-        "vulnerabilities",
-        "has_errors"
-      ];
-
-      var rows = [];
-      for(var d in data){
-        rows.push({
-          name: data[d].name,
-          type: data[d].cms_type,
-          version: data[d].version,
-          plugins: data[d].plugins.length,
-          server: data[d].server.name,
-          vulnerabilities: "<a href='/vulnerabilities#filters=website:"+data[d].name+"'>" + data[d].vulnerabilities.length + "</a>",
-          has_errors: data[d].has_errors,
-        });
-      }
-
-      this.$.table.setColumns(columns);
-      this.$.table.setRows(rows);
-
-      this.$.table.load();
-    },
-
-    onSelect: function(){
-      if(!this._selected){
-        this._selected = true;
-        this.$.request.generateRequest();
-      }
-    }
-
-  });
-})();
-</script>

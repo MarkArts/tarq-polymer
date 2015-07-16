@@ -22,67 +22,68 @@
     }
   </style>
 
-</dom-module>
+  <script>
+  (function() {
+    Polymer({
+      is: 'tarq-vulnerabilities',
 
-<script>
-(function() {
-  Polymer({
-    is: 'tarq-vulnerabilities',
+      properties: {
+        foo: {
+          type: String,
+          value: 'bar',
+          notify: true
+        }
+      },
 
-    properties: {
-      foo: {
-        type: String,
-        value: 'bar',
-        notify: true
-      }
-    },
+      _selected: false,
 
-    _selected: false,
+      handleResponse: function(request){
+        var data = request.detail.response;
 
-    handleResponse: function(request){
-      var data = request.detail.response;
+        var columns = [
+          "title",
+          "type",
+          "plugin",
+          "websites",
+          "vuln_type"
+        ];
 
-      var columns = [
-        "title",
-        "type",
-        "plugin",
-        "websites",
-        "vuln_type"
-      ];
+        var rows = [];
+        for(var d in data){
+          rows.push({
+            title: data[d].title,
+            type: data[d].target_type,
+            plugin: data[d].plugins[0].name,
+            websites: {
+              data: data[d].websites,
+              toString: function(){ return this.data.length.toString() }
+            },
+            vuln_type: data[d].vuln_type
+          });
+        }
 
-      var rows = [];
-      for(var d in data){
-        rows.push({
-          title: data[d].title,
-          type: data[d].target_type,
-          plugin: data[d].plugins[0].name,
-          websites: {
-            data: data[d].websites,
-            toString: function(){ return this.data.length.toString() }
-          },
-          vuln_type: data[d].vuln_type
+        this.$.table.setColumns(columns);
+        this.$.table.setRows(rows);
+
+        this.$.table.registerFilter('website', function(params, row){
+          return row['websites'].data.map(function(val){ return val.name; }).indexOf(params[0]) >= 0;
         });
+
+        this.$.table.load();
+
+      },
+
+      onSelect: function(){
+        if(!this._selected){
+          this._selected = true;
+
+          this.$.request.generateRequest();
+        }
       }
 
-      this.$.table.setColumns(columns);
-      this.$.table.setRows(rows);
+    });
+  })();
+  </script>
 
-      this.$.table.registerFilter('website', function(params, row){
-        return row['websites'].data.map(function(val){ return val.name; }).indexOf(params[0]) >= 0;
-      });
 
-      this.$.table.load();
-
-    },
-
-    onSelect: function(){
-      if(!this._selected){
-        this._selected = true;
-
-        this.$.request.generateRequest();
-      }
-    }
-
-  });
-})();
-</script>
+</dom-module>
