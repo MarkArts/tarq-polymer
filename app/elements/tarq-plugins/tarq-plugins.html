@@ -12,8 +12,7 @@
       debounce-duration='300'>
     </iron-ajax>
 
-    <h2 class="paper-font-display2">Plugins <span>{{rows.length}}</span></h2>
-    <a href="http://localhost:3001/plugins#sorts=vulnerabilities^&filters=populairPlugins,dangerousPlugins">Show only the plugins with atleast 1 vulnerability on more then 5 websites in order of vulnerabilities</a>
+    <h2 class="paper-font-display2">Plugins</h2>
 
     <tarq-table id="table"></tarq-table>
 
@@ -42,7 +41,7 @@
       _selected: false,
 
       handleResponse: function(request){
-        var data = request.detail.response;
+        var resp = request.detail.response;
 
         this.columns = [
           "name",
@@ -51,25 +50,22 @@
         ];
 
         var rows = []
-        for(var d in data){
+        for(var d in resp){
+
+          var vulnerabilitieString = resp[d].vulnerabilities.length.toString();
+          if(resp[d].vulnerabilities.length == 1){
+            vulnerabilitieString =  resp[d].vulnerabilities[0].title;
+          }
+
           rows.push({
-            name: data[d].name,
+            name: resp[d].name,
             vulnerabilities: {
-              data: data[d].vulnerabilities,
-              toString: function(){
-                if(this.data.length == 1){
-                  return this.data[0].title;
-                }
-                return this.data.length.toString();
-              },
-              sortValue: function(){
-                return this.data.length.toString();
-              },
-              filterValue: function(){
-                return this.data.length.toString();
-              }
+              data: resp[d].vulnerabilities,
+              string: '<a href="/vulnerabilities#filter=id:"'+vulnerabilitieString+'>'+vulnerabilitieString+'</a>',
+              sortValue: resp[d].vulnerabilities.length,
+              filterValue: resp[d].vulnerabilities.length
             },
-            websites: data[d].websites.length
+            websites: resp[d].websites.length
           });
         }
         this.set('rows', rows);
