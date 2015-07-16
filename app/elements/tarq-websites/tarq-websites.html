@@ -56,7 +56,12 @@
             version: data[d].version,
             plugins: data[d].plugins.length,
             server: data[d].server.name,
-            vulnerabilities: "<a href='/vulnerabilities#filters=website:"+data[d].name+"'>" + data[d].vulnerabilities.length + "</a>",
+            vulnerabilities: {
+              data: data[d].vulnerabilities,
+              string: "<a href='/vulnerabilities#filters=website:"+data[d].name+"'>" + data[d].vulnerabilities.length + "</a>",
+              filterValue: data[d].vulnerabilities.length,
+              sortValue: data[d].vulnerabilities.length
+            },
             has_errors: data[d].has_errors,
           });
         }

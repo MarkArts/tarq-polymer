@@ -161,7 +161,7 @@
               this._sorts[sort].reverse = reverse; // we should have a public function to set the reverse value
               this._sorts[sort].enabled = true;
             }else{
-              console.log("There is a sort in the hash that does not exist: ", sort);
+              console.log("There is a sort in the hash that does not exist:", sort);
             }
           }
 
@@ -302,9 +302,6 @@
           }).map(function(filter){
             // place only the functions inside the resolved filters array
 
-
-            console.log(filter);
-
             //TODO: THIS IS UGLY, We bind the params so the acutal filtering has it easier (it gets called thousands of times) but we can only pass the row argument as second parameter
             return filter.func.bind(null, filter.params)
           });
@@ -367,17 +364,20 @@
             for(var key in row){
               if(typeof row[key] !== 'object'){
                 row[key] = {
-                  data: row[key],
-                  string: row[key].toString()
+                  data: row[key]
                 }
               }
 
+              if(!row[key].string){
+                row[key].string = row[key].data;
+              }
+
               if(!row[key].sortValue){
-                row[key].sortValue = row[key].toString()
+                row[key].sortValue = row[key].string;
               }
 
               if(!row[key].filterValue){
-                row[key].filterValue = row[key].toString()
+                row[key].filterValue = row[key].string;
               }
 
             }
