@@ -77,6 +77,11 @@
             value: false,
             notify: false
           },
+          _active: {
+            type: Boolean,
+            value: false,
+            notify: true
+          },
           // [ {data: {}, string: ""}, {data: {}, toString: f} ]
           _rows: {
             type: Array,
@@ -119,6 +124,11 @@
           if(this.auto){
             this.load();
           }
+
+          this._hashEvent = function(newURL, oldURL){
+            this._applyHash();
+          }.bind(this);
+
         },
 
         // TODO: Rename this function to something more standard (maybe setup / ready)
@@ -126,10 +136,7 @@
           this._applyHash();
 
           // this is currently "broken" because changed the hash will triger this on all active tarqtables but we use at as workaround
-          window.addEventListener("hashchange", function(newURL, oldURL){
-            this._applyHash();
-          }.bind(this));
-
+          window.addEventListener("hashchange", this._hashEvent);
 
           this.registerFilter('search', function(params, row){
             var ret = false;
@@ -143,8 +150,13 @@
             return ret;
           });
 
-        },
+          this._active = true;
 
+        },
+        disable: function(){
+          window.removeEventListener("hashchange", this._hashEvent);
+          this._active = false;
+        },
         // /table#sorts=column1^,column2&filters=func1,func2,func3,func4&customSorts=sortFunc1,sortFunc2
         _applyHash: function(){
 
@@ -210,6 +222,8 @@
 
                 x = (parseInt(valA) ? parseInt(valA) : valA);
                 y = (parseInt(valB) ? parseInt(valB) : valB);
+
+
                 if(x < y)
                   return -1;
                 else
