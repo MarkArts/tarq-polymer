@@ -53,10 +53,13 @@
           rows.push({
             title: data[d].title,
             type: data[d].target_type,
-            plugin: data[d].plugins[0].name,
+            plugin: {
+              string: data[d].plugins[0].name,
+              filterValue: data[d].plugins[0].id
+            },
             websites: {
               data: data[d].websites,
-              toString: function(){ return this.data.length.toString() }
+              string: data[d].websites.length.toString()
             },
             vuln_type: data[d].vuln_type
           });

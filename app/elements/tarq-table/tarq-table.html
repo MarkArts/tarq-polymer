@@ -225,7 +225,7 @@
             var column = this._columns[k];
 
             this.registerFilter(column, function(params, row){
-              return params.indexOf(row[this].filterValue) >= 0;
+              return row[this].filterValue == params[0];
             }.bind(column)); // we bind the column to this. if we don't column will be a reference to the last column var in the for
           }
         },

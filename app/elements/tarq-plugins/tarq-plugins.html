@@ -56,12 +56,15 @@
           if(resp[d].vulnerabilities.length == 1){
             vulnerabilitieString =  resp[d].vulnerabilities[0].title;
           }
+          if(resp[d].vulnerabilities.length > 0){
+            vulnerabilitieString = '<a href="/vulnerabilities#filters=plugin:'+resp[d].id+'"">'+vulnerabilitieString+'</a>';
+          }
 
           rows.push({
             name: resp[d].name,
             vulnerabilities: {
               data: resp[d].vulnerabilities,
-              string: '<a href="/vulnerabilities#filter=id:"'+vulnerabilitieString+'>'+vulnerabilitieString+'</a>',
+              string: vulnerabilitieString,
               sortValue: resp[d].vulnerabilities.length,
               filterValue: resp[d].vulnerabilities.length
             },
@@ -76,10 +79,6 @@
 
         this.$.table.registerFilter('dangerousPlugins', function(params, row){
           return row.vulnerabilities.data.length >= 1;
-        });
-
-        this.$.table.registerFilter('populairPlugins', function(params, row){
-          return row.websites.data > 5;
         });
 
         this.$.table.load();
